@@ -2,10 +2,6 @@
  *
  * By Michael Teeuw https://michaelteeuw.nl
  * MIT Licensed.
- *
- * For more information on how to configure the MagicMirror,
- * visit https://github.com/MichMich/MagicMirror/tree/master/config
- *
  */
 
 let config = {
@@ -25,25 +21,40 @@ let config = {
     units: "metric",
 
     modules: [
-        // 1. MMM-TOUCHBUTTON (Invisible Touch Zones)
+        {
+    	module: "MMM-LaptopLink",
+    	position: "middle_center",
+    	config: {
+        	messageDuration: 8000,
+        	showStatus: true,
+        	showSendButton: false,
+        	pingText: "Ping from mirror"
+    	}
+	},
+        // 1. MMM-TOUCHBUTTON
         {
             module: "MMM-TouchButton",
             position: "bottom_left",
             config: {
                 buttons: [
+{
+    			name: "ping",
+    			icon: "fa fa-bell",
+    			notification: "WATCH_PING"
+	},
                     {
                         name: "right",
-                        icon: "fa fa-arrow-right", // Icon hidden by CSS
+                        icon: "fa fa-arrow-right",
                         notification: "PAGE_INCREMENT"
                     },
                     {
                         name: "power",
-                        icon: "fa fa-power-off",   // Icon hidden by CSS
+                        icon: "fa fa-power-off",
                         command: "/home/daniel/toggle_screen.sh"
                     },
                     {
                         name: "led",
-                        icon: "fa fa-lightbulb-o", // Icon hidden by CSS
+                        icon: "fa fa-lightbulb-o",
                         command: "/home/daniel/toggle_led.sh"
                     }
                 ]
@@ -55,19 +66,24 @@ let config = {
             module: "MMM-pages",
             config: {
                 modules: [
-                    ["clock"],          // Page 0
-                    ["compliments"],    // Page 1
+                    // PAGE 0: Clock AND Calendar together
+                     
+                    // PAGE 1: Compliments
+                    ["compliments"],
+["clock"],
+["calendar"]
                 ],
-                fixed: [                // Always active/shown
-                    "MMM-TouchButton"
+                fixed: [
+                    "MMM-TouchButton",
+                    "MMM-LaptopLink"
                 ],
             }
         },
     
-        // 3. CLOCK (Page 0)
+        // 3. CLOCK (Moved to top_right)
         {
             module: "clock",
-            position: "top_center", 
+            position: "top_center", // Changed from top_center to top_right
             classes: "main", 
             config: {
                 // Clock config options here
@@ -79,27 +95,31 @@ let config = {
             module: "compliments",
             position: "top_center",
             config: {
-                updateInterval: 30000, // 30 seconds
-                fadeSpeed: 4000,       // 4 seconds
+                updateInterval: 30000, 
+                fadeSpeed: 4000, 
                 compliments: {
-                    anytime: [
-                        "Hey Cutiful!",
-                        "You look Beaudorable"
-                    ],
-                    morning: [
-                        "Have a cutiful day!",
-                        "Hello, Beautie!"
-                    ],
-                    afternoon: [
-                        "Hello, beauty!",
-                        "Looking good today!",
-                        "You look Adorabeau"
-                    ],
-                    evening: [
-                        "Wow, you look hot!",
-                        "Have a good night"
-                    ]
+                    anytime:  ["Hey cutiful", "You look beaudorable"],
+                    morning:  ["Have a good dayy", "looking cutiful today"],
+                    afternoon:["Haaaaaaaaaaaaa", "You look so beaudorable"],
+                    evening:  ["goodnighttttt"]
                 }
+            }
+        },
+
+        // 5. CALENDAR (Page 0)
+        {
+            module: "calendar",
+            header: "My Schedule",
+            position: "top_center", // Stays on the left
+            config: {
+		wrapEvents: true,
+		fetchInterval: 60000,
+                calendars: [
+                    {
+                        symbol: "calendar-check",
+                        url: "https://calendar.google.com/calendar/ical/magicmirrorcalendar10%40gmail.com/private-0022e3933ecd79a60ffbeb19ad25a90f/basic.ics" 
+                    }
+                ]
             }
         },
     ]
@@ -107,4 +127,3 @@ let config = {
 
 /*************** DO NOT EDIT THE LINE BELOW ***************/
 if (typeof module !== "undefined") { module.exports = config; }
-

@@ -1,260 +1,450 @@
-/* ------------------------------------------------------------------------- */
-/* 0. CUSTOM FONT IMPORT */
+/* =========================================================================
+   MagicMirror: heart layout correction v2 (direct body coordinates).
+   Replace the previous supplied custom.css with this entire file.
+   Keep unnamed.jpg in the same folder as this stylesheet.
+   No networking, GPIO or touchscreen-driver changes are made here.
+   ========================================================================= */
+
 @import url('https://fonts.googleapis.com/css2?family=Annie+Use+Your+Telescope&display=swap');
 
-/* ========================================================================= */
-/* GLOBAL VARIABLES */
+/* 1. THEME AND DIRECT LAYOUT SETTINGS
+   These percentages use the same rotated BODY as your clock/compliments.
+   They are starting positions, not measured coordinates from your screen.
+   There is NO extra wallpaper-coordinate conversion or message rotation.
+*/
 :root {
   --gap-body-top: 50px;
   --gap-body-right: 50px;
   --gap-body-bottom: 50px;
   --gap-body-left: 50px;
-
-  /* --- INCREASE BASE FONT SIZE --- */
-  --font-size: 40px; 
-  --font-size-small: 28px; 
-
-  /* Keep background transparent for the layers below to show */
+  --font-size: 40px;
+  --font-size-small: 28px;
   --color-background: transparent;
+
+  --heart-x: 67%;
+  --heart-y: 37.6%;
+  --heart-size: 100px;
+
+  --message-x: 47%;
+  --message-y: 37.2%;
+  --message-width: 43%;
+  --message-height: 80px;
+  --message-font-size: 40px;
+  --message-color: #397a9e;
+
+  /* Set to 2px temporarily to see the otherwise invisible hit areas. */
+  --debug-outline-width: 0px;
+  --mirror-css-revision: "heart-fix-v2";
 }
 
-/* ========================================================================= */
-/* 1. HTML (STATIC CONTAINER) */
+/* 2. EXISTING PAGE ROTATION AND WALLPAPER */
 html {
   height: 100%;
   width: 100%;
-  background-color: black; /* Fallback color */
-}
-
-/* ========================================================================= */
-/* 2. BODY (ROTATED CONTENT LAYER) */
-body {
-  margin: 0 !important;
-  
-  /* --- ROTATION SETTINGS --- */
-  /* This rotates the TEXT and MODULES -90 degrees */
-  transform-origin: top left;
-  transform: rotate(-90deg);
-
-  /* Swap Width and Height for the rotation */
-  width: 100vh;
-  height: 100vw;
-
-  position: absolute;
-  top: 100%; 
-  left: 0;
+  background-color: black;
   overflow: hidden;
 }
 
-/* ========================================================================= */
-/* 2b. WALLPAPER FIX (INDEPENDENT ROTATION) */
-/* This creates a separate layer just for the image so we can rotate it upright */
+body {
+  margin: 0 !important;
+  padding: 0;
+  transform-origin: top left;
+  transform: rotate(-90deg);
+  width: 100vh;
+  height: 100vw;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  overflow: hidden;
+  background: transparent;
+}
+
 body::before {
   content: "";
   position: absolute;
-  
-  /* Center the image layer */
   top: 50%;
   left: 50%;
-  
-  /* Dimensions must be swapped because of the parent rotation */
-  width: 100vw; 
+  width: 100vw;
   height: 100vh;
-  
   background-image: url("unnamed.jpg");
-  background-size: cover; 
+  background-size: cover;
   background-position: right center;
   background-repeat: no-repeat;
-  
-  /* ROTATE THE WALLPAPER +90 DEGREES TO FIX "HORIZONTAL" LOOK */
+  transform-origin: center;
   transform: translate(-50%, -50%) rotate(90deg);
-  
-  z-index: -1; /* Puts it behind the modules */
+  z-index: -1;
+  pointer-events: none;
 }
 
-/* ========================================================================= */
-/* 3. MARGIN FIXES */
+/* 3. EXISTING MODULE MARGINS */
 .region .container {
-    padding-top: var(--gap-body-top);
-    padding-right: var(--gap-body-right);
-    padding-bottom: var(--gap-body-bottom); 
-    padding-left: var(--gap-body-left);
+  padding-top: var(--gap-body-top);
+  padding-right: var(--gap-body-right);
+  padding-bottom: var(--gap-body-bottom);
+  padding-left: var(--gap-body-left);
 }
 
-/* ========================================================================= */
-/* 4. MMM-TOUCHBUTTON STYLES */
-
-/* General style for ALL buttons */
+/* 4. INVISIBLE TOUCH BUTTONS: THE WALLPAPER IS THE VISIBLE CONTROL */
 .MMM-TouchButton .button {
-  border-radius: 50px; 
-  margin: 0; 
-  background-color: transparent; 
-  box-shadow: none; 
-  transition: background-color 0.2s;
-  cursor: pointer; 
-  
-  /* Force text color transparent as a backup */
+  border-radius: 50px;
+  margin: 0;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
   color: transparent !important;
+  font-size: 0 !important;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  pointer-events: auto;
+  touch-action: manipulation;
+  user-select: none;
+  transition: background-color 0.15s;
+  outline: var(--debug-outline-width) dashed #e34a80 !important;
+  outline-offset: -2px;
 }
 
-/* --- FORCE HIDE ICONS/TEXT (Aggressive) --- */
-/* This targets generic icons (i), spans, and specific FontAwesome classes */
-.MMM-TouchButton .button i,
-.MMM-TouchButton .button span,
-.MMM-TouchButton .button svg,
-.MMM-TouchButton .button .fa,
-.MMM-TouchButton .button .fas,
-.MMM-TouchButton .button .far,
-.MMM-TouchButton .button .fab,
-.MMM-TouchButton .button .material-icons {
-  display: none !important; 
-  visibility: hidden !important;
-  opacity: 0 !important;
+.MMM-TouchButton .button > * {
+  display: none !important;
 }
 
-/* --- 4a. Left Button DELETED --- */
+/* Remove generated captions, including the earlier visible PING label. */
+.MMM-TouchButton .button::before,
+.MMM-TouchButton .button::after {
+  content: none !important;
+  display: none !important;
+}
 
-/* --- 4b. Power Button (Bottom Left Corner) --- */
+/* Brief feedback only while a control is pressed. */
+.MMM-TouchButton .button:active {
+  background: rgba(255, 255, 255, 0.16) !important;
+}
+
+.MMM-TouchButton .button:focus-visible {
+  outline: 3px solid #4682b4 !important;
+}
+
+.MMM-TouchButton.hidden .button {
+  pointer-events: none !important;
+}
+
+/* Power: keep your existing working hitbox. */
 .MMM-TouchButton .button-power {
-    position: fixed !important; 
-    
-    /* Moved closer to left edge (was 30px) */
-    left: 10px !important;       
-    bottom: 30px !important; 
-    top: auto !important;    
-    
-    transform: none !important; 
-
-    /* SIZE 125px */
-    padding: 125px !important;
-    
-    right: auto !important;
-    z-index: 9999;
+  position: fixed !important;
+  left: 10px !important;
+  bottom: 30px !important;
+  top: auto !important;
+  right: auto !important;
+  transform: none !important;
+  padding: 125px !important;
+  z-index: 9999;
 }
 
-/* --- 4c. Right Button (Now CENTER SCREEN) --- */
+/* Page change: keep your existing working hitbox. */
 .MMM-TouchButton .button-right {
-    position: fixed !important; 
-    
-    /* Center Position */
-    left: 50% !important;       
-    
-    /* Moved Higher Up (was 65%) */
-    top: 55% !important;         
-    
-    transform: translate(-50%, -50%) !important; 
-
-    right: auto !important;
-    bottom: auto !important;
-    
-    /* Slightly less wide */
-    /* 50px vertical padding, 250px horizontal padding (was 300px) */
-    padding: 50px 250px !important; 
-
-    z-index: 9999;
+  position: fixed !important;
+  left: 50% !important;
+  top: 55% !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+  padding: 50px 250px !important;
+  z-index: 9999;
 }
 
-/* --- 4d. LED Button (Bottom Right Corner) --- */
+/* LEDs: keep your existing working hitbox. */
 .MMM-TouchButton .button-led {
-    position: fixed !important; 
-    
-    /* Moved closer to right edge (was 30px) */
-    right: 10px !important;      
-    bottom: 30px !important; 
-    top: auto !important;    
-    
-    transform: none !important; 
-    
-    /* SIZE 125px */
-    padding: 125px !important;
-
-    left: auto !important;
-    z-index: 9999;
+  position: fixed !important;
+  right: 10px !important;
+  bottom: 30px !important;
+  top: auto !important;
+  left: auto !important;
+  transform: none !important;
+  padding: 125px !important;
+  z-index: 9999;
 }
 
-/* ========================================================================= */
-/* 5. MODULE STYLES (FONTS & COLORS) */
+/* Heart: ONLY the existing TouchButton is used for sending.
+   Supports name: "ping" OR name: "watch"; keep just one in config.js.
+   No notification names or click handlers are changed by this file.
+*/
+html body .MMM-TouchButton .button.button-ping,
+html body .MMM-TouchButton .button.button-watch {
+  position: fixed !important;
+  left: var(--heart-x) !important;
+  top: var(--heart-y) !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+  rotate: none !important;
+  scale: none !important;
+  translate: none !important;
 
-.module-content, .dimmed, .normal, .module-header, .clock .date { 
-  font-family: 'Annie Use Your Telescope', cursive !important; 
-  font-size: 40px !important; 
+  /* Fixed size: padding/content/default minimums cannot enlarge it. */
+  width: var(--heart-size) !important;
+  height: var(--heart-size) !important;
+  min-width: var(--heart-size) !important;
+  max-width: var(--heart-size) !important;
+  min-height: var(--heart-size) !important;
+  max-height: var(--heart-size) !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  border-radius: 50% !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  overflow: hidden !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+  z-index: 10001 !important;
+  outline: var(--debug-outline-width) dashed #e34a80 !important;
+  outline-offset: -2px;
+}
+
+/* Override backgrounds in EVERY interaction state, not just at rest. */
+html body .MMM-TouchButton .button.button-ping,
+html body .MMM-TouchButton .button.button-watch,
+html body .MMM-TouchButton .button.button-ping:hover,
+html body .MMM-TouchButton .button.button-watch:hover,
+html body .MMM-TouchButton .button.button-ping:active,
+html body .MMM-TouchButton .button.button-watch:active,
+html body .MMM-TouchButton .button.button-ping:focus,
+html body .MMM-TouchButton .button.button-watch:focus {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  filter: none !important;
+}
+
+/* The module can also put a background on a wrapper around a button. */
+html body .MMM-TouchButton,
+html body .MMM-TouchButton .module-content,
+html body .MMM-TouchButton .touchButtonRootWrapper,
+html body .MMM-TouchButton .buttonWrapper {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Do not hide the clickable element itself: it may be an <i> or <span>. */
+html body .MMM-TouchButton .button.button-ping > *,
+html body .MMM-TouchButton .button.button-watch > * {
+  display: none !important;
+}
+
+html body .MMM-TouchButton .button.button-ping::before,
+html body .MMM-TouchButton .button.button-ping::after,
+html body .MMM-TouchButton .button.button-watch::before,
+html body .MMM-TouchButton .button.button-watch::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* No separate title is wanted next to an invisible heart hitbox. */
+html body .MMM-TouchButton .title-ping,
+html body .MMM-TouchButton .title-watch {
+  display: none !important;
+}
+
+/* 5. EXISTING GLOBAL FONTS AND COLORS */
+.module-content, .dimmed, .normal, .module-header, .clock .date {
+  font-family: 'Annie Use Your Telescope', cursive !important;
+  font-size: 40px !important;
   line-height: 1.25 !important;
 }
 
 .module-content, .dimmed, .normal {
-  color: #4682B4; /* Steel Blue */
+  color: #4682b4;
 }
+
 .module-header {
   font-size: 40px;
-  color: #40E0D0; /* Turquoise */
-  border-bottom: 2px solid #40E0D0;
+  color: #40e0d0;
+  border-bottom: 2px solid #40e0d0;
 }
 
-/* ========================================================================= */
-/* 6. CLOCK MODULE SPECIFICS */
-
+/* 6. CLOCK */
 .clock .time {
-  font-size: 220px !important; 
+  font-size: 220px !important;
   font-family: 'Annie Use Your Telescope', cursive !important;
   font-weight: bold;
-  line-height: 220px; 
-  color: #4682B4 !important; 
+  line-height: 220px;
+  color: #4682b4 !important;
 }
 
 .clock .seconds, .clock .meridiem {
-  font-size: 88px !important; 
+  font-size: 88px !important;
   font-family: 'Annie Use Your Telescope', cursive !important;
   line-height: 88px;
   vertical-align: top;
-  color: #40E0D0 !important; 
+  color: #40e0d0 !important;
 }
 
-/* Forced Color Overrides */
-.module.clock .time, .module.clock {
-  color: #4682B4 !important;
+.module.clock .time, .module.clock, .module.clock .time > span {
+  color: #4682b4 !important;
 }
 
-.module.clock .time > span {
-  color: #4682B4 !important;
-}
-
-/* ========================================================================= */
-/* 7. COMPLIMENTS MODULE SPECIFICS */
-
-/* 7a. Force the container WIDTH & ALIGNMENT */
+/* 7. COMPLIMENTS */
 .module.compliments {
-  min-width: 500px !important; 
+  min-width: 500px !important;
   width: auto !important;
   max-width: 90% !important;
 }
 
-/* 7b. CENTERING: We must target .module-content to center vertically */
 .module.compliments .module-content {
   display: flex !important;
   flex-direction: column !important;
-  justify-content: center !important; /* Centers Vertically */
-  align-items: center !important;     /* Centers Horizontally */
-  
-  /* CRITICAL: Must have height to center vertically within */
-  min-height: 300px !important; 
+  justify-content: center !important;
+  align-items: center !important;
+  min-height: 300px !important;
   height: 100% !important;
 }
 
-/* 7c. Target the text font and color */
-.compliments .xlarge, 
-.compliments .large, 
-.compliments .medium, 
-.compliments .small,
-.compliments .bright,
-.compliments .normal {
+.compliments .xlarge, .compliments .large, .compliments .medium,
+.compliments .small, .compliments .bright, .compliments .normal {
   font-family: 'Annie Use Your Telescope', cursive !important;
-  color: #4682B4 !important; /* Steel Blue */
-  text-align: center !important; /* Ensure multi-line text centers */
+  color: #4682b4 !important;
+  text-align: center !important;
 }
 
-/* 7d. Text Sizing & Weight */
 .compliments .xlarge {
-  font-size: 100px !important; 
+  font-size: 100px !important;
   line-height: 1.2 !important;
-  font-weight: normal !important; /* CHANGED: Not bold */
+  font-weight: normal !important;
+}
+
+/* 8. CALENDAR */
+.calendar .module-header {
+  color: #2e5984 !important;
+  border-bottom-color: #2e5984 !important;
+}
+
+.calendar .title, .calendar .timeago {
+  color: #2e5984 !important;
+}
+
+.calendar .time {
+  color: #2e5984 !important;
+  font-weight: bold;
+}
+
+/* 9. INCOMING MESSAGE INSIDE THE WALLPAPER'S SPEECH BUBBLE */
+
+/* Prevent the middle_center region's own transform from becoming the
+   positioning reference instead of the rotated body. Keep other modules
+   out of this region if they depend on its normal centering transform. */
+.region.middle.center:has(.MMM-LaptopLink) {
+  transform: none !important;
+}
+
+.module.MMM-LaptopLink {
+  position: fixed !important;
+  left: var(--message-x) !important;
+  top: var(--message-y) !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform-origin: center !important;
+  /* Same orientation as the clock: no additional rotation. */
+  transform: translate(-50%, -50%) !important;
+  rotate: none !important;
+  scale: none !important;
+  translate: none !important;
+  width: var(--message-width) !important;
+  height: var(--message-height) !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+  z-index: 9000;
+  outline: var(--debug-outline-width) dashed #e34a80 !important;
+}
+
+.module.MMM-LaptopLink .module-content,
+.module.MMM-LaptopLink .laptoplink {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+}
+
+/* Remove any message-specific rotations from earlier styling attempts. */
+.module.MMM-LaptopLink .module-content,
+.module.MMM-LaptopLink .laptoplink,
+.module.MMM-LaptopLink .laptoplink-message {
+  transform: none !important;
+  rotate: none !important;
+  scale: none !important;
+  translate: none !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+}
+
+/* laptoplink-message is the class used by MMM-LaptopLink. */
+.module.MMM-LaptopLink .laptoplink-message {
+  width: 100% !important;
+  max-height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  font-family: 'Annie Use Your Telescope', cursive !important;
+  font-size: var(--message-font-size) !important;
+  line-height: 1.15 !important;
+  font-weight: normal !important;
+  letter-spacing: normal !important;
+  color: var(--message-color) !important;
+  text-align: center !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+  overflow: hidden !important;
+  text-overflow: ellipsis;
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  pointer-events: none !important;
+}
+
+/* Only the received message belongs in the speech bubble. */
+.module.MMM-LaptopLink .module-header,
+.module.MMM-LaptopLink .laptoplink-status,
+.module.MMM-LaptopLink .laptoplink-delivery,
+.module.MMM-LaptopLink .laptoplink-button,
+.module.MMM-LaptopLink button,
+.module.MMM-LaptopLink input,
+.module.MMM-LaptopLink textarea {
+  display: none !important;
+}
+
+/* Hide the module's own dark send control; the heart uses TouchButton.
+   This selector also works if the module wrapper has custom classes. */
+html body .laptoplink-button {
+  display: none !important;
 }
