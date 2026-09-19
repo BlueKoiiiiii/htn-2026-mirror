@@ -1,0 +1,27 @@
+.MMM-LaptopLink .laptoplink {
+  max-width: min(640px, 85vw);
+  margin: 0 auto;
+  text-align: center;
+  pointer-events: none;
+}
+.MMM-LaptopLink .laptoplink-message {
+  padding: 18px 24px;
+  margin-bottom: 12px;
+  border: 2px solid currentColor;
+  border-radius: 12px;
+  font-size: 30px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.MMM-LaptopLink .laptoplink-status {
+  font-size: 14px;
+  line-height: 1.4;
+  opacity: 0.55;
+}
+
+.laptoplink-button {
+  background: #222; color: #fff; border: 2px solid #fff; border-radius: 8px;
+  padding: 12px 20px; font: inherit; font-size: 22px; cursor: pointer;
+}
+.laptoplink-delivery {font-size: 17px; margin-top: 8px; opacity: 0.85;}
