@@ -1,0 +1,260 @@
+/* ------------------------------------------------------------------------- */
+/* 0. CUSTOM FONT IMPORT */
+@import url('https://fonts.googleapis.com/css2?family=Annie+Use+Your+Telescope&display=swap');
+
+/* ========================================================================= */
+/* GLOBAL VARIABLES */
+:root {
+  --gap-body-top: 50px;
+  --gap-body-right: 50px;
+  --gap-body-bottom: 50px;
+  --gap-body-left: 50px;
+
+  /* --- INCREASE BASE FONT SIZE --- */
+  --font-size: 40px; 
+  --font-size-small: 28px; 
+
+  /* Keep background transparent for the layers below to show */
+  --color-background: transparent;
+}
+
+/* ========================================================================= */
+/* 1. HTML (STATIC CONTAINER) */
+html {
+  height: 100%;
+  width: 100%;
+  background-color: black; /* Fallback color */
+}
+
+/* ========================================================================= */
+/* 2. BODY (ROTATED CONTENT LAYER) */
+body {
+  margin: 0 !important;
+  
+  /* --- ROTATION SETTINGS --- */
+  /* This rotates the TEXT and MODULES -90 degrees */
+  transform-origin: top left;
+  transform: rotate(-90deg);
+
+  /* Swap Width and Height for the rotation */
+  width: 100vh;
+  height: 100vw;
+
+  position: absolute;
+  top: 100%; 
+  left: 0;
+  overflow: hidden;
+}
+
+/* ========================================================================= */
+/* 2b. WALLPAPER FIX (INDEPENDENT ROTATION) */
+/* This creates a separate layer just for the image so we can rotate it upright */
+body::before {
+  content: "";
+  position: absolute;
+  
+  /* Center the image layer */
+  top: 50%;
+  left: 50%;
+  
+  /* Dimensions must be swapped because of the parent rotation */
+  width: 100vw; 
+  height: 100vh;
+  
+  background-image: url("unnamed.jpg");
+  background-size: cover; 
+  background-position: right center;
+  background-repeat: no-repeat;
+  
+  /* ROTATE THE WALLPAPER +90 DEGREES TO FIX "HORIZONTAL" LOOK */
+  transform: translate(-50%, -50%) rotate(90deg);
+  
+  z-index: -1; /* Puts it behind the modules */
+}
+
+/* ========================================================================= */
+/* 3. MARGIN FIXES */
+.region .container {
+    padding-top: var(--gap-body-top);
+    padding-right: var(--gap-body-right);
+    padding-bottom: var(--gap-body-bottom); 
+    padding-left: var(--gap-body-left);
+}
+
+/* ========================================================================= */
+/* 4. MMM-TOUCHBUTTON STYLES */
+
+/* General style for ALL buttons */
+.MMM-TouchButton .button {
+  border-radius: 50px; 
+  margin: 0; 
+  background-color: transparent; 
+  box-shadow: none; 
+  transition: background-color 0.2s;
+  cursor: pointer; 
+  
+  /* Force text color transparent as a backup */
+  color: transparent !important;
+}
+
+/* --- FORCE HIDE ICONS/TEXT (Aggressive) --- */
+/* This targets generic icons (i), spans, and specific FontAwesome classes */
+.MMM-TouchButton .button i,
+.MMM-TouchButton .button span,
+.MMM-TouchButton .button svg,
+.MMM-TouchButton .button .fa,
+.MMM-TouchButton .button .fas,
+.MMM-TouchButton .button .far,
+.MMM-TouchButton .button .fab,
+.MMM-TouchButton .button .material-icons {
+  display: none !important; 
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* --- 4a. Left Button DELETED --- */
+
+/* --- 4b. Power Button (Bottom Left Corner) --- */
+.MMM-TouchButton .button-power {
+    position: fixed !important; 
+    
+    /* Moved closer to left edge (was 30px) */
+    left: 10px !important;       
+    bottom: 30px !important; 
+    top: auto !important;    
+    
+    transform: none !important; 
+
+    /* SIZE 125px */
+    padding: 125px !important;
+    
+    right: auto !important;
+    z-index: 9999;
+}
+
+/* --- 4c. Right Button (Now CENTER SCREEN) --- */
+.MMM-TouchButton .button-right {
+    position: fixed !important; 
+    
+    /* Center Position */
+    left: 50% !important;       
+    
+    /* Moved Higher Up (was 65%) */
+    top: 55% !important;         
+    
+    transform: translate(-50%, -50%) !important; 
+
+    right: auto !important;
+    bottom: auto !important;
+    
+    /* Slightly less wide */
+    /* 50px vertical padding, 250px horizontal padding (was 300px) */
+    padding: 50px 250px !important; 
+
+    z-index: 9999;
+}
+
+/* --- 4d. LED Button (Bottom Right Corner) --- */
+.MMM-TouchButton .button-led {
+    position: fixed !important; 
+    
+    /* Moved closer to right edge (was 30px) */
+    right: 10px !important;      
+    bottom: 30px !important; 
+    top: auto !important;    
+    
+    transform: none !important; 
+    
+    /* SIZE 125px */
+    padding: 125px !important;
+
+    left: auto !important;
+    z-index: 9999;
+}
+
+/* ========================================================================= */
+/* 5. MODULE STYLES (FONTS & COLORS) */
+
+.module-content, .dimmed, .normal, .module-header, .clock .date { 
+  font-family: 'Annie Use Your Telescope', cursive !important; 
+  font-size: 40px !important; 
+  line-height: 1.25 !important;
+}
+
+.module-content, .dimmed, .normal {
+  color: #4682B4; /* Steel Blue */
+}
+.module-header {
+  font-size: 40px;
+  color: #40E0D0; /* Turquoise */
+  border-bottom: 2px solid #40E0D0;
+}
+
+/* ========================================================================= */
+/* 6. CLOCK MODULE SPECIFICS */
+
+.clock .time {
+  font-size: 220px !important; 
+  font-family: 'Annie Use Your Telescope', cursive !important;
+  font-weight: bold;
+  line-height: 220px; 
+  color: #4682B4 !important; 
+}
+
+.clock .seconds, .clock .meridiem {
+  font-size: 88px !important; 
+  font-family: 'Annie Use Your Telescope', cursive !important;
+  line-height: 88px;
+  vertical-align: top;
+  color: #40E0D0 !important; 
+}
+
+/* Forced Color Overrides */
+.module.clock .time, .module.clock {
+  color: #4682B4 !important;
+}
+
+.module.clock .time > span {
+  color: #4682B4 !important;
+}
+
+/* ========================================================================= */
+/* 7. COMPLIMENTS MODULE SPECIFICS */
+
+/* 7a. Force the container WIDTH & ALIGNMENT */
+.module.compliments {
+  min-width: 500px !important; 
+  width: auto !important;
+  max-width: 90% !important;
+}
+
+/* 7b. CENTERING: We must target .module-content to center vertically */
+.module.compliments .module-content {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important; /* Centers Vertically */
+  align-items: center !important;     /* Centers Horizontally */
+  
+  /* CRITICAL: Must have height to center vertically within */
+  min-height: 300px !important; 
+  height: 100% !important;
+}
+
+/* 7c. Target the text font and color */
+.compliments .xlarge, 
+.compliments .large, 
+.compliments .medium, 
+.compliments .small,
+.compliments .bright,
+.compliments .normal {
+  font-family: 'Annie Use Your Telescope', cursive !important;
+  color: #4682B4 !important; /* Steel Blue */
+  text-align: center !important; /* Ensure multi-line text centers */
+}
+
+/* 7d. Text Sizing & Weight */
+.compliments .xlarge {
+  font-size: 100px !important; 
+  line-height: 1.2 !important;
+  font-weight: normal !important; /* CHANGED: Not bold */
+}

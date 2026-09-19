@@ -1,0 +1,1 @@
+This repository contains config.js and custom.css files which can be used for any MagicMirror2 project to recreate the style of the one used for this project. The 3mF files for the enclosure are also included as well as the scripts needed for some of the features of the project to function.
